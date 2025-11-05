@@ -1,9 +1,7 @@
 // ====================
 // CONFIG GLOBAL
 // ====================
-const API_BASE_URL = window.location.hostname.includes("localhost")
-  ? "http://localhost:3001"
-  : "https://server-web-pwa.onrender.com"; // tu URL de Render
+const API_BASE_URL = window.location.origin; // usa la misma URL donde se sirve el frontend
 
 import { saveSession, getSession, clearSession } from "./session.js";
 
