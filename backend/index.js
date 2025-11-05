@@ -30,7 +30,7 @@ app.get("/status", (req, res) => {
 app.use("/login", loginRouter);
 
 // Servir frontend estático
-const frontendPath = path.join(process.cwd(), "frontend");
+const frontendPath = path.join(process.cwd(), "../frontend");
 app.use(express.static(frontendPath));
 
 // SPA fallback: cualquier ruta que no sea API sirve index.html
