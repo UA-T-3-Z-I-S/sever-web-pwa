@@ -1,0 +1,106 @@
+/* ============================= */
+/*        Variables de color      */
+/* ============================= */
+:root {
+  --primary-color: #FFD54A; /* amarillo */
+  --secondary-color: #222;  /* negro */
+  --bg-color: #fff;          /* fondo blanco */
+  --text-color: #222;        /* texto oscuro */
+  --text-light: #fff;
+  --error-color: #e74c3c;
+  --border-radius: 8px;
+  --padding: 10px;
+  --font-family: 'Arial', sans-serif;
+}
+
+/* ============================= */
+/*           Reset base           */
+/* ============================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+}
+
+body {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,213,74,0.35), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255,213,74,0.25), transparent 50%),
+    #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ============================= */
+/*          Login container       */
+/* ============================= */
+#login-container {
+  background: var(--secondary-color);
+  color: var(--text-light);
+  padding: 30px;
+  border-radius: var(--border-radius);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+#login-container h2 {
+  margin-bottom: 20px;
+  font-size: 1.5em;
+}
+
+#dni-input {
+  width: 100%;
+  padding: var(--padding);
+  margin-bottom: 15px;
+  border-radius: var(--border-radius);
+  border: 1px solid #444;
+  font-size: 1em;
+  background: #333;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+#login-btn {
+  width: 100%;
+  padding: var(--padding);
+  border: none;
+  border-radius: var(--border-radius);
+  background: var(--primary-color);
+  color: var(--secondary-color);
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+
+#login-btn:hover {
+  background: #ffdf6f;
+}
+
+#login-error {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: var(--error-color);
+}
+
+/* ============================= */
+/*       Responsivo móvil         */
+/* ============================= */
+@media screen and (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  #login-container {
+    padding: 20px;
+  }
+
+  #dni-input,
+  #login-btn {
+    font-size: 1em;
+  }
+}

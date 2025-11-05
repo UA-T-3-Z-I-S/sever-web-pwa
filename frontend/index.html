@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWA Sistema de Albergue</title>
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <div id="login-container">
+    <h2>Ingresar con DNI</h2>
+    <form autocomplete="off" onsubmit="return false;">
+      <input 
+        type="tel" 
+        id="dni-input" 
+        placeholder="DNI" 
+        maxlength="8" 
+        pattern="\d{8}" 
+        inputmode="numeric"
+        autocomplete="off" 
+        spellcheck="false" 
+        autocorrect="off" 
+        autocapitalize="off"
+        required
+      >
+      <button type="button" id="login-btn">Ingresar</button>
+    </form>
+    <p id="login-error" style="color:red;"></p>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="./js/app.js"></script>
+  <script type="module" src="./js/login.js"></script>
+</body>
+</html>

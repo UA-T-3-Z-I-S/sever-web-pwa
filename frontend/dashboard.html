@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PWA Sistema de Albergue - Dashboard</title>
+<link rel="stylesheet" href="./styles/dashboard.css">
+<link rel="stylesheet" href="./styles/notifications.css">
+<link rel="stylesheet" href="./styles/form.css">
+<link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+<!-- Topbar -->
+<header id="topbar">
+  <h1>PWA-Albergue</h1>
+  <button id="logout-btn">Cerrar Sesión</button>
+</header>
+
+<!-- Contenido principal -->
+<main id="main-content">
+  <p>Notificaciones</p>
+  <div id="notifications-container">
+    <!-- Cards se agregan aquí -->
+  </div>
+</main>
+
+<script type="module" src="./js/dashboard.js"></script>
+<script type="module" src="./js/notifications.js"></script>
+
+
+</body>
+</html>

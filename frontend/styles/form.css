@@ -1,0 +1,70 @@
+/* Fondo modal */
+#fall-modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 10000;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Contenedor modal */
+#fall-modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  max-height: 95vh;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* Secciones */
+.fall-section { margin-bottom: 15px; }
+
+/* Inputs dinámicos */
+.field-group { position: relative; display:flex; gap:5px; align-items:center; margin-top:5px; }
+.field-group input { flex:1; padding:8px; border-radius:6px; border:1px solid #ccc; font-size:0.95rem; box-sizing:border-box; }
+.remove-btn { background:#e74c3c; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; }
+
+/* Botones grandes para móvil */
+.fall-add-btn, #fall-submit, #fall-close { width:100%; border:none; border-radius:6px; padding:10px; margin-top:8px; font-weight:bold; cursor:pointer; }
+.fall-add-btn { background:#3498db; color:white; }
+#fall-submit { background:#2ecc71; color:white; }
+#fall-close { background:#e74c3c; color:white; }
+
+/* Dropdown autocompletado */
+.dropdown-list {
+  display:none;
+  position:absolute;
+  top:100%; left:0; right:0;
+  max-height:150px; overflow-y:auto;
+  background:white; border:1px solid #ccc; border-radius:6px;
+  z-index:10001; box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+.dropdown-item { padding:8px; cursor:pointer; }
+.dropdown-item:hover { background:#3498db; color:white; }
+
+/* Tiempo intervención */
+.fall-time-group { display:flex; gap:5px; align-items:center; }
+.fall-time-group input { flex:1; padding:8px; border-radius:6px; border:1px solid #ccc; font-size:0.95rem; }
+.fall-time-group button { padding:8px; border-radius:6px; border:none; background:#3498db; color:white; cursor:pointer; }
+
+/* Severidad */
+.fall-severity { display:flex; gap:10px; margin-top:5px; }
+
+/* Comentarios */
+#fall-comments { width:100%; height:120px; max-height:150px; resize:vertical; padding:8px; font-size:0.95rem; border-radius:6px; border:1px solid #ccc; box-sizing:border-box; overflow-y:auto; }
+
+/* Responsive móvil */
+@media (max-width:480px) {
+  #fall-modal-content { width:100%; padding:12px; }
+  #fall-comments { height:120px; }
+}
