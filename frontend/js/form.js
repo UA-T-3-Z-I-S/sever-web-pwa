@@ -28,11 +28,7 @@ export function openForm(notification, userSession = { nombre: "Cuidador", apell
         <!-- Profesionales -->
         <div class="fall-section">
           <label>Profesional(es)</label>
-          <div id="fall-professionals-container">
-            <div class="field-group">
-              <input type="text" disabled>
-            </div>
-          </div>
+          <div id="fall-professionals-container"></div>
           <button type="button" class="fall-add-btn" id="fall-add-prof">Agregar profesional</button>
         </div>
 
@@ -77,8 +73,12 @@ export function openForm(notification, userSession = { nombre: "Cuidador", apell
     });
 
     // Agregar dinámico
-    document.getElementById("fall-add-prof").addEventListener("click", () => addDynamicField("fall-professionals-container", allProfessionals));
-    document.getElementById("fall-add-res").addEventListener("click", () => addDynamicField("fall-residents-container", allResidents));
+    document.getElementById("fall-add-prof").addEventListener("click", () =>
+      addDynamicField("fall-professionals-container", allProfessionals)
+    );
+    document.getElementById("fall-add-res").addEventListener("click", () =>
+      addDynamicField("fall-residents-container", allResidents)
+    );
 
     // Submit
     document.getElementById("fall-submit").addEventListener("click", e => {
@@ -103,16 +103,16 @@ export function openForm(notification, userSession = { nombre: "Cuidador", apell
 }
 
 // ================== FUNCIONES AUXILIARES ==================
-function addDynamicField(containerId, options) {
+function addDynamicField(containerId, options, prefill = "") {
   const container = document.getElementById(containerId);
   const selectedValues = Array.from(container.querySelectorAll("input")).map(i => i.value);
   const filteredOptions = options.filter(o => !selectedValues.includes(o));
-  if (!filteredOptions.length) return;
+  if (!filteredOptions.length && !prefill) return;
 
   const group = document.createElement("div");
   group.className = "field-group";
   group.innerHTML = `
-    <input type="text" placeholder="Selecciona...">
+    <input type="text" placeholder="Selecciona..." value="${prefill}">
     <div class="dropdown-list"></div>
     <div class="field-error" style="color:red; font-size:0.8rem; display:none;">No existe</div>
     <button class="remove-btn">❌</button>
@@ -169,17 +169,22 @@ function restoreFormData(notification, userSession) {
 
   // PROFESIONALES
   const profContainer = document.getElementById("fall-professionals-container");
-  profContainer.innerHTML = `<div class="field-group"><input type="text" value="${userSession.nombre} ${userSession.apellido}" disabled></div>`;
-
-  if (data?.professionals?.length > 1) {
-    data.professionals.slice(1).forEach(p => addDynamicField("fall-professionals-container", [p, ...allProfessionals]));
+  profContainer.innerHTML = "";
+  // Siempre mostrar el usuario que abre el formulario primero
+  addDynamicField("fall-professionals-container", allProfessionals, `${userSession.nombre} ${userSession.apellido}`);
+  if (data?.professionals?.length) {
+    data.professionals.forEach((p) => {
+      if (p !== `${userSession.nombre} ${userSession.apellido}`) {
+        addDynamicField("fall-professionals-container", allProfessionals, p);
+      }
+    });
   }
 
   // RESIDENTES
   const resContainer = document.getElementById("fall-residents-container");
   resContainer.innerHTML = "";
   if (data?.residents?.length) {
-    data.residents.forEach(r => addDynamicField("fall-residents-container", [r, ...allResidents]));
+    data.residents.forEach(r => addDynamicField("fall-residents-container", allResidents, r));
   }
 
   // COMENTARIOS
@@ -187,7 +192,8 @@ function restoreFormData(notification, userSession) {
 
   // SEVERIDAD
   if (data?.severity) {
-    document.querySelector(`input[name='fall-severity'][value='${data.severity}']`).checked = true;
+    const severityInput = document.querySelector(`input[name='fall-severity'][value='${data.severity}']`);
+    if (severityInput) severityInput.checked = true;
   }
 
   // HORA DE INTERVENCIÓN
@@ -195,7 +201,6 @@ function restoreFormData(notification, userSession) {
   if (data?.interventionTime) {
     timeInput.value = data.interventionTime;
   } else {
-    // Si no hay hora guardada, usamos la hora actual (cuando se marca "Sí hubo caída")
     const now = new Date();
     const hh = now.getHours().toString().padStart(2, "0");
     const mm = now.getMinutes().toString().padStart(2, "0");
