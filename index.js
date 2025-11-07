@@ -9,6 +9,7 @@ import notsRouter from "./backend/routes/notifications.js";
 import keyRouter from "./backend/routes/key.js";
 import formRouter from "./backend/routes/form.js";
 import pwaRouter from './backend/src/pwa.js';
+import startPushListener from './backend/src/push.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -82,6 +83,9 @@ app.get("*", (req,res) => res.status(404).send("Not found"));
       console.log(`🌐 Frontend servido desde: ${frontendPath}`);
       console.log(`🌐 URL pública: ${FRONTEND_URL}`);
     });
+
+    startPushListener().catch(err => console.error('❌ Error listener push:', err));
+  
   } catch (err) {
     console.error("❌ Error inicializando servidor:", err);
   }
