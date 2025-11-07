@@ -6,6 +6,7 @@ import { connectMongoose } from "./backend/src/mongoose.js";
 import loginRouter from "./backend/routes/login.js";
 import usersRouter from "./backend/routes/users.js";
 import notsRouter from "./backend/routes/notifications.js";
+import keyRouter from "./backend/routes/key.js";
 import formRouter from "./backend/routes/form.js";
 import pwaRouter from './backend/src/pwa.js';
 
@@ -51,6 +52,8 @@ app.use("/nots", (req, res, next) => {
 
 // Form
 app.use("/form", formRouter);
+
+app.use("/key", keyRouter);
 
 // =====================
 // FRONTEND
