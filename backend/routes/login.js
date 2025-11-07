@@ -13,7 +13,9 @@ router.post("/", async (req, res) => {
 
     const db = await connectDB();
     const staffCollection = db.collection("personal_albergue");
+    const tiposCollection = db.collection("tipos_personal");
 
+    // Buscar usuario
     const user = await staffCollection.findOne({ dni });
 
     if (!user) {
@@ -24,14 +26,27 @@ router.post("/", async (req, res) => {
       return res.status(403).json({ error: "Usuario inactivo" });
     }
 
+    // Buscar nombre del tipo por uuid (user.tipo)
+    let tipoNombre = null;
+    if (user.tipo) {
+      const tipoDoc = await tiposCollection.findOne({ id: user.tipo });
+      tipoNombre = tipoDoc ? tipoDoc.nombre : null;
+    }
+
     return res.json({
       ok: true,
       user: {
         _id: user._id,
+        id: user.id,
         nombre: user.nombre,
         apellido: user.apellido,
         dni: user.dni,
-        tipo: user.tipo
+        tipo: {
+          id: user.tipo,
+          nombre: tipoNombre
+        },
+        test: user.test || false,    // <- agregado
+        pwas: user.pwas || []        // <- agregado
       },
       message: "Login correcto"
     });

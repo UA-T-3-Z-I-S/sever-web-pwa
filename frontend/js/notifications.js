@@ -1,23 +1,22 @@
+import { getSession } from "./app.js";
+import { sendForm } from "./form/save.js";
+
 const notificationsContainer = document.getElementById("notifications-container");
-
-// Datos de prueba
-const notifications = [
-  { id: 1, hora: 14, minutos: 23, segundos: 15, milliseconds: 500 },
-  { id: 2, hora: 16, minutos: 10, segundos: 0, milliseconds: 0 },
-  { id: 3, hora: 9,  minutos: 5,  segundos: 30, milliseconds: 250 },
-];
-
-// Estado de formularios pendientes
 const pendingForms = {};
 
-function createNotificationCard(notification) {
+function createNotificationCard(notification, userSession) {
   const card = document.createElement("div");
   card.className = "notification-card";
-  card.dataset.id = notification.id;
+  card.dataset.id = notification._id || notification.id;
+
+  const ts = new Date(notification.timestamp);
+  const hora = ts.getHours();
+  const minutos = ts.getMinutes();
 
   card.innerHTML = `
     <h3>¡Alerta de Caída!</h3>
-    <p>Hora: ${notification.hora.toString().padStart(2,'0')}:${notification.minutos.toString().padStart(2,'0')}</p>
+    <p>Ubicación: ${notification.camara || "Desconocida"}</p>
+    <p>Hora: ${hora.toString().padStart(2,'0')}:${minutos.toString().padStart(2,'0')}</p>
     <div class="buttons received-buttons">
       <button class="received-btn">Recibida</button>
     </div>
@@ -40,47 +39,95 @@ function createNotificationCard(notification) {
   const continueBtn = card.querySelector(".continue-btn");
   const title = card.querySelector("h3");
 
-  // Evento Recibida
   receivedBtn.addEventListener("click", () => {
     receivedButtons.style.display = "none";
     confirmButtons.style.display = "flex";
     title.textContent = "Confirmar: ¿Es una caída?";
   });
 
-  // Evento Sí
-  card.querySelector(".yes-btn").addEventListener("click", () => {
-    import("./form.js").then(module => module.openForm(notification));
+  card.querySelector(".yes-btn").addEventListener("click", async () => {
     confirmButtons.style.display = "none";
-    pendingForms[notification.id] = true; // marca como pendiente
+    pendingForms[notification._id || notification.id] = true;
     pendingMsg.style.display = "block";
     title.textContent = "Es una caída ✔️";
+
+    import("./form/form.js").then(module =>
+      module.openForm(notification, userSession, () => {
+        pendingMsg.style.display = "block";
+        pendingMsg.textContent = "Formulario enviado ✔️";
+        continueBtn.style.display = "none";
+        delete pendingForms[notification._id || notification.id];
+      })
+    );
   });
 
-  // Evento No
-  card.querySelector(".no-btn").addEventListener("click", () => {
+  card.querySelector(".no-btn").addEventListener("click", async () => {
     confirmButtons.style.display = "none";
     title.textContent = "No es caída ❌";
+
+    const session = await getSession();
+    if (!session?._id) return console.error("No hay usuario en sesión");
+
+    const payload = {
+      notificationId: notification._id || notification.id,
+      userId: session._id,
+      caida: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    try {
+      const res = await sendForm(payload);
+      if (!res.ok) console.error("Error enviando No:", res.error);
+
+      pendingMsg.style.display = "block";
+      pendingMsg.textContent = "Formulario enviado ✔️";
+      continueBtn.style.display = "none";
+      delete pendingForms[notification._id || notification.id];
+
+    } catch (err) {
+      console.error("Error enviando No:", err);
+    }
   });
 
-  // Evento Cancelar
   cancelBtn.addEventListener("click", () => {
     confirmButtons.style.display = "none";
     receivedButtons.style.display = "flex";
     title.textContent = "¡Alerta de Caída!";
   });
 
-  // Evento Continuar (si formulario pendiente)
   continueBtn.addEventListener("click", () => {
-    if (pendingForms[notification.id]) {
-      import("./form.js").then(module => module.openForm(notification));
+    if (pendingForms[notification._id || notification.id]) {
+      import("./form/form.js").then(module => 
+        module.openForm(notification, userSession, () => {
+          pendingMsg.style.display = "block";
+          pendingMsg.textContent = "Formulario enviado ✔️";
+          continueBtn.style.display = "none";
+          delete pendingForms[notification._id || notification.id];
+        })
+      );
     }
   });
 
   return card;
 }
 
-// Renderizar todas las notificaciones
-notifications.forEach(n => {
-  const card = createNotificationCard(n);
-  notificationsContainer.appendChild(card);
-});
+async function loadNotifications() {
+  const session = await getSession();
+  const response = await fetch(`/nots?_ts=${Date.now()}`);
+  const data = await response.json();
+
+  if (!data.ok) return console.error("Error cargando notificaciones");
+
+  const filteredNotifications = data.notifications.filter(n => {
+    return session.test ? n.estado === 0 : n.estado === 1;
+  });
+
+  notificationsContainer.innerHTML = "";
+  filteredNotifications.forEach(n => {
+    const card = createNotificationCard(n, session);
+    notificationsContainer.appendChild(card);
+  });
+}
+
+loadNotifications();

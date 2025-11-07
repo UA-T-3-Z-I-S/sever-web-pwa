@@ -26,7 +26,6 @@ async function initDashboard() {
       usernameEl.textContent = `${session.nombre} ${session.apellido}`;
     }
 
-    console.log("Sesión cargada:", session);
   } catch (err) {
     console.error("Error cargando sesión:", err);
     // Redirige al login si algo falla
