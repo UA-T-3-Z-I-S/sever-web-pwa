@@ -7,7 +7,7 @@ export async function registerPush(userMongoId) {
   const registration = await navigator.serviceWorker.register('/service-worker.js');
   const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC)
+    applicationServerKey: urlBase64ToUint8Array(import.meta.env.VAPID_PUBLIC_KEY)
   });
 
   await fetch('/pwa/subscribe', {
