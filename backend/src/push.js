@@ -60,9 +60,14 @@ export default async function startPushListener() {
       for (const pwa of pwaDocs) {
         try {
           const payload = JSON.stringify({
-            title: 'Alerta de caída',
+            title: '📢 Alerta de caída',
             body: `Evento: ${notif.evento}, Cámara: ${notif.camara}`,
-            data: { id: notif._id }
+            url: '/dashboard.html',
+            data: { 
+              id: notif._id,
+              evento: notif.evento,
+              camara: notif.camara,
+            }
           });
           await webpush.sendNotification(pwa.subscription, payload);
           console.log(`✅ Notificación enviada a ${user.nombre}`);
@@ -75,3 +80,4 @@ export default async function startPushListener() {
 }
 
 startPushListener().catch(err => console.error('❌ Error listener push:', err));
+
