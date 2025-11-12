@@ -57,6 +57,7 @@ export default async function startPushListener() {
 
       // Enviar push a todos los PWA del usuario
       const pwaDocs = await pwaCol.find({ _id: { $in: user.pwas } }).toArray();
+      console.log(`👀 ${user.nombre} tiene ${pwaDocs.length} PWA(s):`, pwaDocs.map(p => p._id)); // Comprobación de _id (MongoDB)
       for (const pwa of pwaDocs) {
         try {
           const payload = JSON.stringify({
@@ -85,5 +86,6 @@ export default async function startPushListener() {
 }
 
 startPushListener().catch(err => console.error('❌ Error listener push:', err));
+
 
 
