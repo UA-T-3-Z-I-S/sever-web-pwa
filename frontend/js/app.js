@@ -81,8 +81,12 @@ function setupLogin() {
 // ====================
 // SERVICE WORKER + REGISTRO PWA
 // ====================
+let pwaRegistered = false; // 🧩 bandera global para evitar múltiples registros
+
 async function setupServiceWorker() {
-  if ("serviceWorker" in navigator) {
+  if ("serviceWorker" in navigator && !pwaRegistered) {
+    pwaRegistered = true; // evita duplicar registro SW o llamadas a /subscribe
+
     try {
       const registration = await navigator.serviceWorker.register("/service-worker.js");
       console.log("✅ Service Worker registrado");
@@ -91,7 +95,7 @@ async function setupServiceWorker() {
       const session = await getSession();
       if (session) {
         console.log("🟢 Usuario activo, registrando PWA...");
-        await registerPush(session._id, session.id);
+        await registerPush(session._id, session.id, registration);
       }
     } catch (err) {
       console.warn("SW error:", err);

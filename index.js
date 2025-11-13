@@ -57,14 +57,17 @@ app.use("/key", keyRouter);
 // =====================
 // PWA ROUTES (mover antes del listen ✅)
 // =====================
-app.use("/pwa", (req, res, next) => {
-  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-  res.set("Pragma", "no-cache");
-  res.set("Expires", "0");
-  res.set("Surrogate-Control", "no-store");
-  next();
-});
-app.use("/pwa", pwaRouter);
+app.use(
+  "/pwa",
+  (req, res, next) => {
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+    res.set("Surrogate-Control", "no-store");
+    next();
+  },
+  pwaRouter
+);
 
 // =====================
 // FRONTEND STATIC FILES
