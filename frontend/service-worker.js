@@ -26,20 +26,25 @@ function swLog(msg, extra = {}) {
 }
 
 // =======================================================
-// CONFIG CACHE
+// CONFIG CACHE (🔥 IMPORTANTE: rutas con /frontend/)
 // =======================================================
-const CACHE_NAME = 'pwa-cache-v5'; // ← 🔥 NUEVA VERSION
+const CACHE_NAME = 'pwa-cache-v6';
+
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/dashboard.html',
-  '/js/app.js',
-  '/js/login.js',
-  '/js/session.js',
-  '/styles/main.css',
-  '/styles/dashboard.css',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/frontend/',
+  '/frontend/index.html',
+  '/frontend/dashboard.html',
+
+  '/frontend/js/app.js',
+  '/frontend/js/login.js',
+  '/frontend/js/session.js',
+
+  '/frontend/styles/main.css',
+  '/frontend/styles/dashboard.css',
+
+  '/frontend/icons/icon-192.png',
+  '/frontend/icons/icon-512.png',
+  '/frontend/icons/favicon.ico'
 ];
 
 // =======================================================
@@ -68,9 +73,6 @@ self.addEventListener('activate', (e) => {
 
   e.waitUntil(
     caches.keys().then((keys) => {
-      console.log("🧹 [SW] Cache actual:", keys);
-      swLog("Caches detectados", { keys });
-
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
@@ -85,18 +87,20 @@ self.addEventListener('activate', (e) => {
 });
 
 // =======================================================
-// FETCH
+// FETCH (🔥 AJUSTADO AL SCOPE /frontend/)
 // =======================================================
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  if (url.pathname === "/service-worker.js") return; // evitar loops
+  // Prevenir bucle infinito
+  if (url.pathname.endsWith("service-worker.js")) return;
 
-  if (
+  const isHTML =
     e.request.mode === 'navigate' ||
     url.pathname.endsWith('.html') ||
-    url.pathname === '/'
-  ) {
+    url.pathname === '/frontend/';
+
+  if (isHTML) {
     e.respondWith(
       fetch(e.request)
         .then((res) =>
@@ -129,20 +133,18 @@ self.addEventListener("push", (event) => {
     swLog("Error parseando push JSON", { error: err.toString() });
   }
 
-  swLog("Push parseado", data);
-
   const title = data.title || "Nueva alerta";
   const body = data.body || "Tienes una nueva notificación";
 
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
-      icon: "/icons/icon-192.png",
-      badge: "/icons/favicon.ico",
+      icon: "/frontend/icons/icon-192.png",
+      badge: "/frontend/icons/favicon.ico",
       vibrate: [200, 100, 200],
       actions: [{ action: "open", title: "Abrir 📲" }],
       data: {
-        url: data.url || "/dashboard.html",
+        url: data.url || "/frontend/dashboard.html",
         extra: data.data || {}
       }
     })
@@ -157,16 +159,13 @@ self.addEventListener("notificationclick", (event) => {
   swLog("Click en notificación", event.notification.data);
 
   event.notification.close();
-  const url = event.notification.data?.url || "/";
+  const url = event.notification.data?.url || "/frontend/";
 
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
-        swLog("Ventanas activas detectadas", { count: clientList.length });
-
         for (const client of clientList) {
           if (client.url.includes(url) && "focus" in client) {
-            swLog("Focusing ventana existente", { url: client.url });
             client.postMessage({
               tipo: "notificacion",
               data: event.notification.data?.extra
@@ -174,8 +173,6 @@ self.addEventListener("notificationclick", (event) => {
             return client.focus();
           }
         }
-
-        swLog("Abriendo nueva ventana", { url });
         return clients.openWindow(url);
       })
   );
