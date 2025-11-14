@@ -31,21 +31,17 @@ function swLog(msg, extra = {}) {
 const CACHE_NAME = 'pwa-cache-v6';
 
 const STATIC_ASSETS = [
-  '/frontend/',
-  '/frontend/index.html',
-  '/frontend/dashboard.html',
-
-  '/frontend/js/app.js',
-  '/frontend/js/login.js',
-  '/frontend/js/session.js',
-
-  '/frontend/styles/main.css',
-  '/frontend/styles/dashboard.css',
-
-  '/frontend/icons/icon-192.png',
-  '/frontend/icons/icon-512.png',
-  '/frontend/icons/favicon.ico'
-];
+  '/',
+  '/index.html',
+  '/dashboard.html',
+  '/js/app.js',
+  '/js/login.js',
+  '/js/session.js',
+  '/styles/main.css',
+  '/styles/dashboard.css',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png'
+  ];
 
 // =======================================================
 // INSTALL
