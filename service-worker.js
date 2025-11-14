@@ -1,6 +1,12 @@
 console.log("🔥 [SW] Service Worker cargado y ejecutándose");
 
 // =======================================================
+// 🔄 FORZAR ACTUALIZACIÓN INMEDIATA DEL SERVICE WORKER
+// =======================================================
+self.addEventListener("install", () => self.skipWaiting());
+self.addEventListener("activate", (event) => event.waitUntil(clients.claim()));
+
+// =======================================================
 // FUNCION PARA ENVIAR LOGS AL BACKEND
 // =======================================================
 function swLog(msg, extra = {}) {
@@ -22,7 +28,7 @@ function swLog(msg, extra = {}) {
 // =======================================================
 // CONFIG CACHE
 // =======================================================
-const CACHE_NAME = 'pwa-cache-v3';
+const CACHE_NAME = 'pwa-cache-v4'; // ← 🔥 NUEVA VERSION
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -39,21 +45,16 @@ const STATIC_ASSETS = [
 // =======================================================
 // INSTALL
 // =======================================================
-self.addEventListener('install', e => {
+self.addEventListener('install', (e) => {
   console.log("📦 [SW] Instalando Service Worker…");
   swLog("SW install");
 
   e.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
+      .then((cache) => {
         console.log("📁 [SW] Cacheando assets estáticos…");
         swLog("Cacheando assets", { CACHE_NAME, STATIC_ASSETS });
         return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
-        console.log("⏭️ [SW] skipWaiting()");
-        swLog("skipWaiting");
-        return self.skipWaiting();
       })
   );
 });
@@ -61,17 +62,17 @@ self.addEventListener('install', e => {
 // =======================================================
 // ACTIVATE
 // =======================================================
-self.addEventListener('activate', e => {
+self.addEventListener('activate', (e) => {
   console.log("🚀 [SW] Activando Service Worker…");
   swLog("SW activate");
 
   e.waitUntil(
-    caches.keys().then(keys => {
+    caches.keys().then((keys) => {
       console.log("🧹 [SW] Cache actual:", keys);
       swLog("Caches detectados", { keys });
 
       return Promise.all(
-        keys.map(key => {
+        keys.map((key) => {
           if (key !== CACHE_NAME) {
             console.log(`🗑️ [SW] Borrando cache viejo: ${key}`);
             swLog("Borrando cache viejo", { oldKey: key });
@@ -81,31 +82,37 @@ self.addEventListener('activate', e => {
       );
     })
   );
-
-  self.clients.claim();
 });
 
 // =======================================================
 // FETCH
 // =======================================================
-self.addEventListener('fetch', e => {
+self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
   if (url.pathname === "/service-worker.js") return; // evitar loops
 
-  if (e.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
+  if (
+    e.request.mode === 'navigate' ||
+    url.pathname.endsWith('.html') ||
+    url.pathname === '/'
+  ) {
     e.respondWith(
       fetch(e.request)
-        .then(res => caches.open(CACHE_NAME).then(cache => {
-          cache.put(e.request, res.clone());
-          return res;
-        }))
+        .then((res) =>
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(e.request, res.clone());
+            return res;
+          })
+        )
         .catch(() => caches.match(e.request))
     );
     return;
   }
 
-  e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+  e.respondWith(
+    caches.match(e.request).then((res) => res || fetch(e.request))
+  );
 });
 
 // =======================================================
@@ -113,9 +120,7 @@ self.addEventListener('fetch', e => {
 // =======================================================
 self.addEventListener("push", (event) => {
   console.log("📩 [SW] PUSH EVENT DISPARADO");
-  swLog("Push recibido RAW", {
-    text: event.data?.text() || null
-  });
+  swLog("Push recibido RAW", { text: event.data?.text() || null });
 
   let data = {};
   try {
@@ -135,9 +140,7 @@ self.addEventListener("push", (event) => {
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
       vibrate: [200, 100, 200],
-      actions: [
-        { action: "open", title: "Abrir 📲" }
-      ],
+      actions: [{ action: "open", title: "Abrir 📲" }],
       data: {
         url: data.url || "/dashboard.html",
         extra: data.data || {}
