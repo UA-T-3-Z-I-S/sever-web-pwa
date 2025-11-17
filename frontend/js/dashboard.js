@@ -36,7 +36,6 @@ function renderNotifications(list) {
     div.innerHTML = `
       <h3>¡Alerta de Caída!</h3>
       <p>Ubicación: ${n.camara || "Desconocida"}</p>
-      <p>Estado: ${n.estado}</p>
       <small>${fecha ? fecha.toLocaleString() : "---"}</small>
     `;
 
