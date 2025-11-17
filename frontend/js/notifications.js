@@ -98,7 +98,7 @@ function createNotificationCard(notification, userSession) {
 
   continueBtn.addEventListener("click", () => {
     if (pendingForms[notification._id || notification.id]) {
-      import("./form/form.js").then(module => 
+      import("./form/form.js").then(module =>
         module.openForm(notification, userSession, () => {
           pendingMsg.style.display = "block";
           pendingMsg.textContent = "Formulario enviado ✔️";
@@ -117,7 +117,10 @@ async function loadNotifications() {
   const response = await fetch(`/nots?_ts=${Date.now()}`);
   const data = await response.json();
 
-  if (!data.ok) return console.error("Error cargando notificaciones");
+  if (!data.ok) {
+    console.error("Error cargando notificaciones");
+    return;
+  }
 
   const filteredNotifications = data.notifications.filter(n => {
     return session.test ? n.estado === 0 : n.estado === 1;
@@ -130,4 +133,8 @@ async function loadNotifications() {
   });
 }
 
+// Ejecutar al entrar
 loadNotifications();
+
+// Exponer globalmente para dashboard.js
+window.loadNotifications = loadNotifications;
