@@ -11,11 +11,13 @@ if (mainContent) mainContent.style.display = "none";
 // ---- FUNCIÓN PARA OBTENER NOTIFICACIONES DEL SERVIDOR ----
 async function fetchNotifications() {
   try {
-    const res = await fetch("/pwa/notifications/latest");
+    const res = await fetch("/nots?_ts=" + Date.now());  // ← FIX
     if (!res.ok) throw new Error("Error obteniendo notificaciones");
 
     const data = await res.json();
-    renderNotifications(data);
+
+    // tu backend responde: { ok: true, notifications: [...] }
+    renderNotifications(data.notifications || []);        // ← FIX
   } catch (err) {
     console.error("❌ Error cargando notificaciones:", err);
   }
