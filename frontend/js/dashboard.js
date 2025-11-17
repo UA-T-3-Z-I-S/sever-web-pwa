@@ -23,9 +23,9 @@ async function initDashboard() {
       usernameEl.textContent = `${session.nombre} ${session.apellido}`;
     }
 
-    // NOTA: NO cargamos notificaciones aquí.
-    // notifications.js se encargará de dibujarlas
-    // y de llamar a loadNotifications()
+    // NOTA:
+    // notifications.js debe encargarse de llamar a window.loadNotifications()
+    // aquí no cargamos nada.
 
   } catch (err) {
     console.error("Error cargando sesión:", err);
@@ -48,12 +48,13 @@ if (navigator.serviceWorker) {
   navigator.serviceWorker.addEventListener("message", (event) => {
     const data = event.data;
 
-    if (data && data.type === "PUSH_RECEIVED") {
+    // 🔥 ESTE ES EL EVENTO QUE REALMENTE ENVÍA EL SW
+    if (data && data.type === "push-notification") {
       console.log("📩 Dashboard recibió push:", data.payload);
 
-      // Llamar a notifications.js para recargar la lista
+      // Llamar a notifications.js para recargar la lista real
       if (window.loadNotifications) {
-        window.loadNotifications(); // 🔥 recargar tarjetas reales
+        window.loadNotifications();
       }
     }
   });
