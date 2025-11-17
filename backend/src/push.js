@@ -87,7 +87,6 @@ export default async function startPushListener() {
 
           await webpush.sendNotification(pwa.subscription, payload, {
             TTL: 0,
-            urgency: "high",
             headers: { urgency: 'high' }
           });
 
