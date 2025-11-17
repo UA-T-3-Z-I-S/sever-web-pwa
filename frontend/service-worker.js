@@ -41,7 +41,7 @@ const STATIC_ASSETS = [
   '/styles/dashboard.css',
   '/icons/icon-192.png',
   '/icons/icon-512.png'
-  ];
+];
 
 // =======================================================
 // INSTALL
@@ -88,7 +88,6 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  // Prevenir bucle infinito
   if (url.pathname.endsWith("service-worker.js")) return;
 
   const isHTML =
@@ -133,17 +132,33 @@ self.addEventListener("push", (event) => {
   const body = data.body || "Tienes una nueva notificación";
 
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      icon: "/frontend/icons/icon-192.png",
-      badge: "/frontend/icons/favicon.ico",
-      vibrate: data.vibrate,
-      actions: [{ action: "open", title: "Abrir 📲" }],
-      data: {
-        url: data.url || "/frontend/dashboard.html",
-        extra: data.data || {}
+    (async () => {
+      // 1. Mostrar notificación
+      await self.registration.showNotification(title, {
+        body,
+        icon: "/frontend/icons/icon-192.png",
+        badge: "/frontend/icons/favicon.ico",
+        vibrate: data.vibrate,
+        actions: [{ action: "open", title: "Abrir 📲" }],
+        data: {
+          url: data.url || "/frontend/dashboard.html",
+          extra: data.data || {}
+        }
+      });
+
+      // 2. Avisar al dashboard para refrescar notificaciones
+      const allClients = await clients.matchAll({
+        includeUncontrolled: true,
+        type: "window"
+      });
+
+      for (const client of allClients) {
+        client.postMessage({
+          type: "push-notification",
+          payload: data
+        });
       }
-    })
+    })()
   );
 });
 
