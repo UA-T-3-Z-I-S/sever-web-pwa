@@ -11,19 +11,17 @@ if (mainContent) mainContent.style.display = "none";
 // ---- FUNCIÓN PARA OBTENER NOTIFICACIONES DEL SERVIDOR ----
 async function fetchNotifications() {
   try {
-    const res = await fetch("/nots?_ts=" + Date.now());  // ← FIX
+    const res = await fetch("/nots?_ts=" + Date.now());
     if (!res.ok) throw new Error("Error obteniendo notificaciones");
 
     const data = await res.json();
-
-    // tu backend responde: { ok: true, notifications: [...] }
-    renderNotifications(data.notifications || []);        // ← FIX
+    renderNotifications(data.notifications || []);
   } catch (err) {
     console.error("❌ Error cargando notificaciones:", err);
   }
 }
 
-// ---- RENDER ----
+// ---- RENDER COMPATIBLE CON /nots ----
 function renderNotifications(list) {
   if (!notificationsContainer) return;
 
@@ -33,10 +31,13 @@ function renderNotifications(list) {
     const div = document.createElement("div");
     div.className = "notification-card";
 
+    const fecha = n.timestamp ? new Date(n.timestamp) : null;
+
     div.innerHTML = `
-      <h3>${n.titulo || "Sin título"}</h3>
-      <p>${n.mensaje || ""}</p>
-      <small>${new Date(n.fecha).toLocaleString()}</small>
+      <h3>¡Alerta de Caída!</h3>
+      <p>Ubicación: ${n.camara || "Desconocida"}</p>
+      <p>Estado: ${n.estado}</p>
+      <small>${fecha ? fecha.toLocaleString() : "---"}</small>
     `;
 
     notificationsContainer.appendChild(div);
@@ -59,7 +60,6 @@ async function initDashboard() {
       usernameEl.textContent = `${session.nombre} ${session.apellido}`;
     }
 
-    // cargar notificaciones al inicio
     await fetchNotifications();
 
   } catch (err) {
@@ -78,18 +78,13 @@ if (logoutBtn) {
   });
 }
 
-// ---------------------------------------------------------
-// 🔥 ESCUCHAR MENSAJES DEL SERVICE WORKER
-// Cuando llega un push → el SW manda un mensaje → actualizamos dashboard
-// ---------------------------------------------------------
+// ---- ESCUCHAR PUSH PARA ACTUALIZAR DASHBOARD ----
 if (navigator.serviceWorker) {
   navigator.serviceWorker.addEventListener("message", (event) => {
     const data = event.data;
 
     if (data && data.type === "PUSH_RECEIVED") {
       console.log("📩 Dashboard recibió push:", data.payload);
-
-      // Refrescar notificaciones cuando llega un push
       fetchNotifications();
     }
   });
